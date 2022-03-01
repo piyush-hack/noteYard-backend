@@ -49,7 +49,7 @@ router.post('/createuser', [
   } catch (error) {
     success = false;
     console.error(error.message);
-    res.status(500).send(success , "Internal Server Error");
+    res.status(500).send({success : success , msg : "Internal Server Error"});
   }
 })
 
