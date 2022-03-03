@@ -24,7 +24,7 @@ router.post('/createuser', [
     let user = await User.findOne({ email: req.body.email });
     if (user) {
       success = false
-      return res.status(400).json({sucess, error: "Sorry a user with this email already exists" })
+      return res.status(400).json({ success, error: "Sorry a user with this email already exists" })
     }
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(req.body.password, salt);
@@ -44,12 +44,12 @@ router.post('/createuser', [
 
     success = true;
     // res.json(user)
-    res.json({success , authtoken })
+    res.json({ success, authtoken })
 
   } catch (error) {
     success = false;
     console.error(error.message);
-    res.status(500).send({success : success , msg : "Internal Server Error"});
+    res.status(500).send({ success: success, msg: "Internal Server Error" });
   }
 })
 
@@ -99,7 +99,7 @@ router.post('/login', [
 
 
 // ROUTE 3: Get loggedin User Details using: POST "/api/auth/getuser". Login required
-router.post('/getuser', fetchuser,  async (req, res) => {
+router.post('/getuser', fetchuser, async (req, res) => {
 
   try {
     userId = req.user.id;
@@ -110,4 +110,39 @@ router.post('/getuser', fetchuser,  async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 })
+
+router.post('/settimetable', fetchuser, async (req, res) => {
+  try {
+    const { timetable } = req.body;
+
+    const croutine = await User.findByIdAndUpdate({ _id: req.user.id }, { $set: { timetable: null } });
+
+    const routine = await User.findByIdAndUpdate({ _id: req.user.id }, { $set: { timetable: timetable } }, { new: true });
+
+    success = true;
+    res.status(200).send({ success, routine })
+
+
+
+  } catch (error) {
+    success = true;
+    res.status(500).send({ success: success, error: "Internal Server Error" });
+  }
+})
+
+router.get('/gettimetable', fetchuser, async (req, res) => {
+  try {
+
+    const routine = await User.findById({ _id: req.user.id }, "timetable");
+
+    success = true;
+    res.status(200).send({ success, routine })
+
+  } catch (error) {
+    success = true;
+    res.status(500).send({ success: success, error: "Internal Server Error" });
+  }
+})
+
+
 module.exports = router
