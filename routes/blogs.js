@@ -5,9 +5,14 @@ const Blog = require('../models/Blogs');
 const { body, validationResult } = require('express-validator');
 
 // ROUTE 1: Get All 
-router.get('/fetchallblogs', async (req, res) => {
+router.get('/fetchallblogs/:id', async (req, res) => {
     try {
-        const blogs = await Blog.find({});
+
+        let query = req.query;
+        if(req.params.id !== "undefined"){
+            query._id = req.params.id
+        }
+        const blogs = await Blog.find(query).sort({"_id" : -1});
         res.json(blogs)
     } catch (error) {
         console.error(error.message);
