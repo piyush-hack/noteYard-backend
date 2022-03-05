@@ -9,10 +9,10 @@ router.get('/fetchallblogs/:id', async (req, res) => {
     try {
 
         let query = req.query;
-        if(req.params.id !== "undefined"){
+        if (req.params.id !== "undefined") {
             query._id = req.params.id
         }
-        const blogs = await Blog.find(query).sort({"_id" : -1});
+        const blogs = await Blog.find(query).sort({ "_id": -1 });
         res.json(blogs)
     } catch (error) {
         console.error(error.message);
@@ -31,6 +31,11 @@ router.post('/addblog', fetchuser, [
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
+
+            console.log(typeof req.user.details, req.user.details.permissions)
+            if (!(req.user.details.permissions).includes("blog.add")) {
+                return res.status(400).json({ errors: "Permission Required . Contact Admin" });
+            }
             const blog = new Blog({
                 ...req.body, user: req.user.id
             })
@@ -40,7 +45,7 @@ router.post('/addblog', fetchuser, [
 
         } catch (error) {
             console.error(error.message);
-            res.status(500).send("Internal Server Error");
+            res.status(500).send({ errors: "Internal Server Error" });
         }
     })
 
@@ -58,6 +63,9 @@ router.put('/updateblog/:id', fetchuser, async (req, res) => {
         let blog = await Blog.findById(req.params.id);
         if (!blog) { return res.status(404).send("Not Found") }
 
+        if (!(req.user.details.permissions).includes("blog.update")) {
+            return res.status(400).json({ errors: "Permission Required . Contact Admin" });
+        }
         if (blog.user.toString() !== req.user.id) {
             return res.status(401).send("Not Allowed");
         }

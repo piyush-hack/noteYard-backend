@@ -20,6 +20,8 @@ const UserSchema = new Schema({
         default: Date.now
     },
     timetable: { type: Array },
+    permissions: [{ type: String, enum: ["blog.add", "blog.update", "blog.delete"] }]
+
 });
 const User = mongoose.model('user', UserSchema);
 module.exports = User;

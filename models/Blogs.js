@@ -24,7 +24,6 @@ const Blog = new Schema({
         type: Array,
         "default": []
     },
-
     tags: {
         type: Array,
         "default": []
