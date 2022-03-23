@@ -20,7 +20,10 @@ router.get('/fetchallblogs/:id', async (req, res) => {
         }
         const blogs = await Blog.find(query).sort({ "_id": -1 }).skip(skip)
             .limit(limit);
-        res.json(blogs)
+
+        const totalRecords = await Blog.find(query).countDocuments();
+
+        res.json({articles : blogs , totalResults : totalRecords})
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
