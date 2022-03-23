@@ -9,10 +9,17 @@ router.get('/fetchallblogs/:id', async (req, res) => {
     try {
 
         let query = req.query;
+        let skip = 0;
+        let page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 6;
+        skip = (page - 1) * limit;
+        delete req.query.page;
+        delete req.query.limit;
         if (req.params.id !== "undefined") {
             query._id = req.params.id
         }
-        const blogs = await Blog.find(query).sort({ "_id": -1 });
+        const blogs = await Blog.find(query).sort({ "_id": -1 }).skip(skip)
+            .limit(limit);
         res.json(blogs)
     } catch (error) {
         console.error(error.message);
