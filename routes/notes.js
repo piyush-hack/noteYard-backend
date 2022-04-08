@@ -65,6 +65,26 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
     }
 })
 
+router.put('/addNoteDesc/:id', fetchuser, async (req, res) => {
+    const desc = req.body.description;
+    try {
+        // Create a newNote object
+
+        // Find the note to be updated and update it
+        let note = await Note.findById(req.params.id);
+        if (!note) { return res.status(404).send("Not Found") }
+
+        if (note.user.toString() !== req.user.id) {
+            return res.status(401).send("Not Allowed");
+        }
+        note = await Note.findByIdAndUpdate(req.params.id, { $set: { "description": note.description + " " + desc } }, { new: true })
+        res.json({ note });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+})
+
 // ROUTE 4: Delete an existing Note using: DELETE "/api/notes/deletenote". Login required
 router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     try {
