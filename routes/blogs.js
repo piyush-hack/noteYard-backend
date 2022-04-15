@@ -1,10 +1,32 @@
 const express = require('express');
+var multer = require('multer');
+var path = require('path')
 const router = express.Router();
+var ObjectID = require('mongodb').ObjectID;
 const fetchuser = require('../middleware/fetchuser');
 const Blog = require('../models/Blogs');
 const { body, validationResult } = require('express-validator');
 
-// ROUTE 1: Get All 
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        cb(null, (new ObjectID()).toString() + path.extname(file.originalname))
+    }
+})
+var upload = multer({ storage: storage });
+
+router.post('/uploadImg', upload.single('uploadImg'), function (req, res, next) {
+    // req.file is the `profile-file` file
+    // req.body will hold the text fields, if there were any
+    // console.log(JSON.stringify(req.file))
+    res.json({ url: req.file.path })
+})
+
+
+
+// Get All 
 router.get('/fetchallblogs/:id', async (req, res) => {
     try {
 
@@ -23,7 +45,7 @@ router.get('/fetchallblogs/:id', async (req, res) => {
 
         const totalRecords = await Blog.find(query).countDocuments();
 
-        res.json({articles : blogs , totalResults : totalRecords})
+        res.json({ articles: blogs, totalResults: totalRecords })
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -58,7 +80,6 @@ router.post('/addblog', fetchuser, [
             res.status(500).send({ errors: "Internal Server Error" });
         }
     })
-
 
 router.put('/updateblog/:id', fetchuser, async (req, res) => {
     const { title, subtitle, body } = req.body;
